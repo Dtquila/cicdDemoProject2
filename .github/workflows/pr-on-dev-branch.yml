@@ -8,7 +8,7 @@ on:
     paths:
       - force-app/**
     branches:
-      - dev
+      - main
 
 jobs:
   validate-to-uat:
