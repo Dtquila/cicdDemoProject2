@@ -50,22 +50,21 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const { octokit } = require('@actions/github-script');
             const prNumber = context.issue.number;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
             // Check if all checks have passed
-            const { data: checks } = await octokit.rest.checks.listForRef({
+            const checks = await github.rest.checks.listForRef({
               owner,
               repo,
               ref: context.sha
             });
 
-            const allChecksPassed = checks.check_runs.every(check => check.conclusion === 'success');
+            const allChecksPassed = checks.data.check_runs.every(check => check.conclusion === 'success');
 
             if (allChecksPassed) {
-              await octokit.rest.pulls.merge({
+              await github.rest.pulls.merge({
                 owner,
                 repo,
                 pull_number: prNumber,
