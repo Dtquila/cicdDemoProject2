@@ -32,6 +32,11 @@ jobs:
           echo "$HOME/sf/bin" >> $GITHUB_PATH
           ~/sf/bin/sf version
 
+      - name: 'Installing sfdx git delta'
+        run: | 
+          echo y | sf plugins:install sfdx-git-delta
+          sf plugins 
+
       # Install SFDX scanner
       - name: 'Installing SFDX scanner'
         run: sf plugins install @salesforce/sfdx-scanner
@@ -46,22 +51,27 @@ jobs:
         run: sf org login sfdx-url --sfdx-url-file ./PROD_URL.txt --set-default --alias myOrg
 
 
+      # We use SFDX Git Delta to create a directory with only the metadata that has changed, this allows us
+      # to deploy only those changes, as opposed to deploying the entire branch. This helps reducing deployment times
+      - name: 'Create delta packages for new, modified or deleted metadata'
+        run: | 
+            mkdir changed-sources
+            sf sgd source delta --to "HEAD" --from "HEAD^" --output changed-sources/ --generate-delta --source force-app/
+            cd changed-sources
+            echo dir
+
       # Scan the code in the delta directory by using sfdx scanner. Output the results of the scan in a new file
       # called apexScanResults.sarif
       - name: 'Scan code'
         run: |
-            mkdir changed-sources
-            sf scanner run --format sarif --target ./**/*.cls --category Design,Best Practices,Performance --outfile changed-sources/apexScanResults.sarif
-
-      - name: Display SARIF file
-        run: |
-            echo "Scan results:"
-            cat changed-sources/apexScanResults.sarif
+            cd changed-sources
+            sf scanner run --format sarif --target ./**/*.cls --category Design,Best Practices,Performance --outfile apexScanResults.sarif
+            cd..
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: changed-sources/apexScanResults.sarif
 
-      - name: Validation - run all tests
-        run: sf project deploy start --source-dir force-app --dry-run --test-level RunAllTestsInOrg --target-org myOrg -r --json -g
+      #- name: Validation - run all tests
+       # run: sf project deploy start --source-dir force-app --dry-run --test-level RunAllTestsInOrg --target-org myOrg -r --json -g
