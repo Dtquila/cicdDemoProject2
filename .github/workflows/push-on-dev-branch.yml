@@ -53,6 +53,14 @@ jobs:
         run: |
             mkdir changed-sources
             sf sgd source delta --to "HEAD" --from "HEAD^" --output changed-sources/ --generate-delta --source force-app/
+      
+
+      - name: Display SARIF file
+        run: |
+            echo "Changes"
+            cat changed-sources/package/package.xml
+            echo "DestructiveChanges"
+            cat changed-sources/destructiveChanges/destructiveChanges.xml
 
       - name: Deploy app to UAT
         run: sf project deploy start --manifest changed-sources/package/package.xml --target-org myOrg --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --concise
