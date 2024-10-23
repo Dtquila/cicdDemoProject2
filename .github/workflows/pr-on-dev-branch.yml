@@ -51,9 +51,7 @@ jobs:
       - name: 'Scan code'
         run: |
             mkdir changed-sources
-            cd changed-sources
-            sf scanner run --format sarif --target ./**/*.cls --category Design,Best Practices,Performance --outfile apexScanResults.sarif  
-            cd ..
+            sf scanner run --format sarif --target ./**/*.cls --category Design,Best Practices,Performance --outfile changed-sources/apexScanResults.sarif
 
       - name: Display SARIF file
         run: |
