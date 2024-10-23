@@ -32,12 +32,32 @@ jobs:
           echo "$HOME/sf/bin" >> $GITHUB_PATH
           ~/sf/bin/sf version
 
+      # Install SFDX scanner
+      - name: 'Installing SFDX scanner'
+        run: sfdx plugins:install @salesforce/sfdx-scanner
+
+      # Get the Integration Org SFDX URL and store it in a text file
       - name: Populate auth file with SFDX_URL secret of target org
         run: |
           echo ${{ secrets.PROD_URL}} > ./PROD_URL.txt
 
+      # Authenticate to org using the URL stored in the text file
       - name: Authenticate to target Org
         run: sf org login sfdx-url --sfdx-url-file ./PROD_URL.txt --set-default --alias myOrg
+
+
+      # Scan the code in the delta directory by using sfdx scanner. Output the results of the scan in a new file
+      # called apexScanResults.sarif
+      - name: 'Scan code'
+        run: |
+            cd changed-sources
+            sf scanner run --format sarif --target ./**/*.cls --category Design,Best Practices,Performance --outfile apexScanResults.sarif  
+            cd ..
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: changed-sources/apexScanResults.sarif
 
       - name: Validation - run all tests
         run: sf project deploy start --source-dir force-app --dry-run --test-level RunAllTestsInOrg --target-org myOrg -r --json -g
