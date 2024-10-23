@@ -73,8 +73,7 @@ jobs:
       # called apexScanResults.sarif
       - name: 'Scan code'
         run: |
-            echo "Files"
-            find .
+            cd changed-sources
             sf scanner run --format sarif --target ./**/*.cls --category Design,Best Practices,Performance --outfile apexScanResults.sarif
             cd ..
             
