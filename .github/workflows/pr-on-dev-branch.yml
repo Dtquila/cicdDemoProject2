@@ -64,7 +64,7 @@ jobs:
             find .
             echo "package.xml"
             cat package/package.xml
-            echo "destructiveChanges"
+            echo "destructiveChanges_Package.xml"
             cat destructiveChanges/package.xml
             echo "destructiveChanges"
             cat destructiveChanges/destructiveChanges.xml
@@ -82,5 +82,5 @@ jobs:
         with:
           sarif_file: changed-sources/apexScanResults.sarif
 
-      #- name: Validation - run all tests
-       # run: sf project deploy start --source-dir force-app --dry-run --test-level RunAllTestsInOrg --target-org myOrg -r --json -g
+      - name: Validation - run all tests
+        run: sf project deploy start --source-dir force-app --dry-run --test-level RunAllTestsInOrg --target-org myOrg -r --json -g

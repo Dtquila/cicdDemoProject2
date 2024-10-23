@@ -35,6 +35,11 @@ jobs:
 
           ~/sf/bin/sf version
 
+      - name: 'Installing sfdx git delta'
+        run: | 
+          echo y | sf plugins:install sfdx-git-delta
+          sf plugins
+
       - name: Populate auth file with SFDX_URL secret of target org
         run: |
           echo ${{ secrets.PROD_URL}} > ./PROD_URL.txt
@@ -42,5 +47,12 @@ jobs:
       - name: Authenticate to target Org
         run: sf org login sfdx-url --sfdx-url-file ./PROD_URL.txt --set-default --alias myOrg
 
-      - name: Validation - run all tests
-        run: sf project deploy start --source-dir force-app --target-org myOrg --json
+      # We use SFDX Git Delta to create a directory with only the metadata that has changed, this allows us
+      # to deploy only those changes, as opposed to deploying the entire branch. This helps reducing deployment times
+      - name: 'Create delta packages for new, modified or deleted metadata'
+        run: |
+            mkdir changed-sources
+            sf sgd source delta --to "HEAD" --from "HEAD^" --output changed-sources/ --generate-delta --source force-app/
+
+      - name: Deploy app to UAT
+        run: sf project deploy start --manifest changed-sources/package/package.xml --target-org myOrg --post-destructive-changes changed-sources/destructiveChanges.xml --concise
