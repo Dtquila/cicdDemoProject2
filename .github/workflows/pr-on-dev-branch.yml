@@ -50,7 +50,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const { octokit, context } = require('@actions/github');
+            const { octokit } = require('@actions/github');
             const prNumber = context.issue.number;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
