@@ -73,11 +73,11 @@ jobs:
       # called apexScanResults.sarif
       - name: 'Scan code'
         run: |
-            sf scanner run --format sarif --target ./**/*.cls --category Design,Best Practices,Performance --outfile apexScanResults.sarif
-            cd ..
             echo "Files"
             find .
-
+            sf scanner run --format sarif --target ./**/*.cls --category Design,Best Practices,Performance --outfile apexScanResults.sarif
+            cd ..
+            
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
         with:
