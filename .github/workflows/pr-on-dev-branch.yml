@@ -88,4 +88,4 @@ jobs:
           sarif_file: changed-sources/apexScanResults.sarif
 
       - name: Validation - run all tests
-        run: sf project deploy start --source-dir force-app --dry-run --test-level RunAllTestsInOrg --target-org myOrg -r --json -g
+        run: sf project deploy start --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --dry-run --test-level RunAllTestsInOrg --target-org myOrg -r --json -g
