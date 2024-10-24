@@ -64,8 +64,6 @@ jobs:
             find .
             echo "package.xml"
             cat package/package.xml
-            echo "destructiveChanges_Package.xml"
-            cat destructiveChanges/package.xml
             echo "destructiveChanges"
             cat destructiveChanges/destructiveChanges.xml
 
