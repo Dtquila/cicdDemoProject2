@@ -2,12 +2,8 @@ name: deployment
 
 on:
   push:
-    paths:
-      - force-app/**
     branches:
       - test
-      #- uat
-      #- pre-prod
 
 run-name: Deploying to ${{ github.ref_name }} by ${{ github.actor }}
 
@@ -17,34 +13,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
 
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Install Salesforce CLI
-        run: >
-          wget
-          https://developer.salesforce.com/media/salesforce-cli/sf/channels/stable/sf-linux-x64.tar.xz
-
-          mkdir ~/sf
-
-          tar xJf sf-linux-x64.tar.xz -C ~/sf --strip-components 1
-
-          echo "$HOME/sf/bin" >> $GITHUB_PATH
-
-          ~/sf/bin/sf version
-
-      - name: Populate auth file with SFDX_URL secret of target org
+      - name: github ref
         run: |
-          echo ${{ secrets.Sandbox_URL}} > ./PROD_URL.txt
-
-      - name: Authenticate to target Org
-        run: sf org login sfdx-url --sfdx-url-file ./PROD_URL.txt --set-default --alias AMCSOrg
-
-      - name: Deploy App
-        run: sf project deploy start --manifest deployment/package.xml --post-destructive-changes deployment/postDestructiveChanges.xml --test-level RunLocalTests --target-org AMCSOrg --concise
+          echo "github ref: ${{ github.ref }} , github ref_name: ${{ github.ref_name }}
